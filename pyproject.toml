@@ -1,0 +1,16 @@
+[project]
+name = "mcp-assistant"
+version = "0.1.0"
+description = "An MCP-powered AI Assistant built with FastAPI."
+readme = "README.md"
+requires-python = ">=3.10"
+
+dependencies = [
+    "fastapi>=0.116.0",
+    "uvicorn[standard]>=0.35.0",
+    "pydantic-settings>=2.0.0",
+    "python-dotenv>=1.0.0",
+    "ollama>=0.5.0",
+    "chromadb>=0.5.0",
+    "PyPDF2>=3.0.0"
+]

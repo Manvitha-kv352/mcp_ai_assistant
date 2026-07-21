@@ -1,0 +1,33 @@
+# Virtual Environment
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment variables
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# Chroma Vector Database
+chroma_db/
+
+# Uploaded documents
+uploads/
+
+# Local database
+*.db
+
+# Build files
+*.egg-info/
+
+# Outputs
+outputs/
+
+# Logs
+*.log

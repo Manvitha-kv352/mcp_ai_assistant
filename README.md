@@ -1,69 +1,302 @@
-# MCP Assistant
+# 🤖 MCP Assistant
 
-MCP Assistant is a FastAPI + React/Vite chat application that can:
-- answer general questions,
-- route to MCP tools for API/database/file tasks,
-- upload and index PDF-like documents for follow-up questions,
-- keep chat history in a session and support a new-chat workflow.
+An AI-powered **Model Context Protocol (MCP) Assistant** built with **FastAPI**, **React (Vite)**, and **Ollama**. The application enables intelligent conversations, document-based question answering using **Retrieval-Augmented Generation (RAG)**, and integration with external tools for file, API, and database operations.
 
-## Project structure
+---
 
-- app/ — FastAPI backend, agents, planner, RAG logic, session handling
-- frontend/ — Vite React frontend
-- docker-compose.yml — Docker compose entrypoint
-- Dockerfile — container build definition
+## 🚀 Features
 
-## Prerequisites
+* 🤖 AI-powered conversational assistant using **Ollama**
+* 🧠 Supports local LLMs such as **Llama 3** and **Mistral**
+* 📄 Upload and analyze PDF documents
+* 🔍 Retrieval-Augmented Generation (RAG) for document question answering
+* 🛠️ Extensible Model Context Protocol (MCP) tool integration
+* 💬 Session-based chat history
+* 🆕 Start a new chat anytime
+* ⚡ FastAPI backend with React + Vite frontend
+* 🐳 Docker support for containerized deployment
+* 📂 Local document indexing for contextual responses
 
-- Python 3.10+
-- Node.js and npm
-- Optional: Docker Desktop if you want to use the container flow
+---
 
-## Run locally
+# 🏗️ Project Architecture
 
-### 1) Backend
+```text
+mcp_ai_assistant/
+│
+├── app/
+│   ├── agents/              # AI agent logic
+│   ├── planner/             # Task planning
+│   ├── rag/                 # Retrieval-Augmented Generation
+│   ├── sessions/            # Session management
+│   ├── tools/               # MCP tool handlers
+│   ├── models/
+│   └── main.py              # FastAPI entry point
+│
+├── frontend/                # React + Vite frontend
+│
+├── uploads/                 # Uploaded documents
+├── outputs/                 # Generated outputs
+├── chroma_db/               # Chroma vector database
+│
+├── Dockerfile
+├── docker-compose.yml
+├── requirements.txt
+├── .gitignore
+└── README.md
+```
 
-From the project root:
+---
 
-```powershell
+# 🛠️ Tech Stack
+
+### Backend
+
+* Python
+* FastAPI
+* Uvicorn
+* LangChain
+* ChromaDB
+* Ollama
+
+### Frontend
+
+* React
+* Vite
+* JavaScript
+* CSS
+
+### AI & RAG
+
+* Ollama
+* Llama 3 / Mistral (configurable)
+* Retrieval-Augmented Generation (RAG)
+
+### Deployment
+
+* Docker
+* Docker Compose
+
+---
+
+# 📋 Prerequisites
+
+Before running the project, install:
+
+* Python 3.10+
+* Node.js & npm
+* Git
+* Ollama
+* Docker Desktop (optional)
+
+---
+
+# ⚙️ Installation
+
+## 1. Clone the repository
+
+```bash
+git clone https://github.com/Manvitha-kv352/mcp_ai_assistant.git
+
+cd mcp_ai_assistant
+```
+
+---
+
+## 2. Create a virtual environment
+
+### Windows
+
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+```
+
+### Linux / macOS
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+---
+
+## 3. Install backend dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## 4. Install and configure Ollama
+
+Download Ollama:
+
+https://ollama.com
+
+Pull a supported model:
+
+```bash
+ollama pull llama3
+```
+
+or
+
+```bash
+ollama pull mistral
+```
+
+Start the Ollama server:
+
+```bash
+ollama serve
+```
+
+---
+
+## 5. Start the backend
+
+```bash
 .\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8013 --log-level warning
 ```
 
-### 2) Frontend
+Backend:
 
-In a second terminal:
+```text
+http://localhost:8013
+```
 
-```powershell
+---
+
+## 6. Start the frontend
+
+Open another terminal:
+
+```bash
 cd frontend
+
 npm install
+
 npm run dev
 ```
 
-Open:
+Frontend:
 
-- http://localhost:5174
+```text
+http://localhost:5174
+```
 
-## Docker option
+---
 
-If Docker Desktop is installed and running:
+# 🐳 Docker
 
-```powershell
+Build and run the application:
+
+```bash
 docker compose up --build
 ```
 
 Then open:
 
-- http://localhost:8013
+```text
+http://localhost:8013
+```
 
-## Usage
+---
 
-1. Open the chat UI in the browser.
-2. Upload a file using the Upload file button.
-3. Ask a question about the uploaded file in the same chat session.
-4. Use New chat to start a fresh thread.
+# 📖 Usage
 
-## Notes
+1. Launch the backend.
+2. Start the frontend.
+3. Open the application in your browser.
+4. Upload a PDF document.
+5. Ask questions related to the uploaded document.
+6. Continue the conversation with maintained session history.
+7. Click **New Chat** to begin a fresh conversation.
 
-- The app uses local session storage in the browser for the active chat thread id.
-- The backend uses the local upload folder and the in-memory session manager for the current run.
-- If you want persistent storage across restarts, connect the Supabase-backed database modules later.
+---
+
+# 🧠 How It Works
+
+1. The user uploads a document.
+2. The document is processed and indexed into **ChromaDB**.
+3. Relevant document chunks are retrieved using **RAG**.
+4. The retrieved context is combined with the user's query.
+5. **Ollama** generates a context-aware response.
+6. If needed, the planner routes requests to MCP tools for additional actions.
+
+---
+
+# 📂 Project Components
+
+| Component    | Description                                   |
+| ------------ | --------------------------------------------- |
+| FastAPI      | Backend API server                            |
+| React + Vite | Frontend user interface                       |
+| Ollama       | Local Large Language Model                    |
+| ChromaDB     | Vector database for document retrieval        |
+| LangChain    | RAG pipeline and orchestration                |
+| MCP Tools    | External API, file, and database integrations |
+
+---
+
+# 🌟 Future Enhancements
+
+* User authentication
+* Persistent chat history
+* Supabase integration
+* Multi-user support
+* Streaming AI responses
+* Additional MCP tool integrations
+* Cloud deployment
+* Voice interaction
+* Image understanding
+* Advanced document search
+
+---
+
+# 🤝 Contributing
+
+Contributions are welcome!
+
+1. Fork the repository.
+2. Create a new feature branch.
+
+```bash
+git checkout -b feature-name
+```
+
+3. Commit your changes.
+
+```bash
+git commit -m "Add new feature"
+```
+
+4. Push your branch.
+
+```bash
+git push origin feature-name
+```
+
+5. Open a Pull Request.
+
+---
+
+# 📄 License
+
+This project is licensed under the **MIT License**.
+
+---
+
+# 👩‍💻 Author
+
+**Manvitha K V**
+
+**B.Tech – Artificial Intelligence & Data Science**
+
+GitHub: **https://github.com/Manvitha-kv352**
+
+---
+
+⭐ If you found this project useful, consider giving it a **star** on GitHub!

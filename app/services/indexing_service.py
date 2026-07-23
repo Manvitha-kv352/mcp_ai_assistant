@@ -11,10 +11,18 @@ class IndexingService:
         self.vector_store = VectorStore()
 
     def index_pdf(self, file_path: str):
+        try:
+            text = self.loader.load_pdf(file_path)
+        except Exception as exc:
+            raise ValueError(f"Failed to load PDF file: {exc}") from exc
 
-        text = self.loader.load_pdf(file_path)
+        if not text or not text.strip():
+            return 0
 
         chunks = self.chunker.chunk_text(text)
+
+        if not chunks:
+            return 0
 
         self.vector_store.add_documents(chunks)
 

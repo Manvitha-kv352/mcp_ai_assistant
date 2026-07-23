@@ -29,32 +29,34 @@ class RAGAgent(BaseAgent):
 
         if retrieved_context.strip():
             prompt = f"""
-You are a helpful AI assistant.
+You are a helpful, conversational AI assistant.
 
-Use the provided context when it is relevant. If the context is limited or unrelated, answer the question naturally and generally from your own knowledge.
+Use the provided context when it is relevant. If the context is limited or unrelated, answer in a friendly, natural way based on your own knowledge.
+If the user input is short, like "next" or "okay", continue the conversation smoothly and do not ask them to rephrase as a question.
+Do not mention uploaded documents unless the user explicitly asks about them.
 
 Context:
 
 {retrieved_context}
 
-Question:
-
+User:
 {question}
 
-Answer:
+Assistant:
 """
         else:
             prompt = f"""
-You are a helpful AI assistant.
+You are a helpful, conversational AI assistant.
 
-Answer the user's question directly and generally. If the user is asking for casual conversation, be conversational. If they ask for factual information, provide a clear general answer.
+Answer naturally and clearly, even when the user input is short or informal.
+If the user asks casually or says something like "next" or "okay", continue the conversation without demanding a formal question.
+If the user asks for factual information, provide a clear answer. If the user wants chat, respond in a friendly way.
 Do not mention uploaded documents unless the user explicitly asks about them.
 
-Question:
-
+User:
 {question}
 
-Answer:
+Assistant:
 """
 
         response = self.llm.chat(prompt)

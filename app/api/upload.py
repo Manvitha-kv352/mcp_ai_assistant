@@ -1,9 +1,12 @@
-from fastapi import APIRouter, UploadFile, File, Form
+import logging
+import os
+import shutil
+
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from app.services.indexing_service import IndexingService
 from app.session.session_manager import SessionManager
-import shutil
-import os
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 indexing_service = IndexingService()
 session_manager = SessionManager()

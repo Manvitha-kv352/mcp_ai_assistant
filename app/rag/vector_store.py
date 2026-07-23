@@ -1,4 +1,5 @@
 import chromadb
+import uuid
 
 from app.rag.embeddings import EmbeddingModel
 
@@ -16,20 +17,33 @@ class VectorStore:
 
     def add_documents(self, chunks):
 
+        if not chunks:
+            return
+
         ids = []
+        documents = []
         embeddings = []
 
-        for i, chunk in enumerate(chunks):
-            ids.append(str(i))
-            embeddings.append(
-                self.embedding_model.embed_text(chunk)
-            )
+        for chunk in chunks:
+            embedding = self.embedding_model.embed_text(chunk)
+            if not isinstance(embedding, list) or len(embedding) == 0:
+                continue
 
-        self.collection.add(
-            ids=ids,
-            documents=chunks,
-            embeddings=embeddings
-        )
+            ids.append(str(uuid.uuid4()))
+            documents.append(chunk)
+            embeddings.append(embedding)
+
+        if not embeddings:
+            return
+
+        try:
+            self.collection.add(
+                ids=ids,
+                documents=documents,
+                embeddings=embeddings
+            )
+        except Exception as exc:
+            raise RuntimeError(f"Failed to add documents to vector store: {exc}") from exc
 
     def search(self, query, top_k=3):
 

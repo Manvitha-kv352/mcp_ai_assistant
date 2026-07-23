@@ -1,15 +1,10 @@
-from ollama import embed
+from app.llm.ollama_client import OllamaClient
 
 
 class EmbeddingModel:
 
     def __init__(self):
-        self.model = "nomic-embed-text"
+        self.client = OllamaClient()
 
     def embed_text(self, text: str):
-        response = embed(
-            model=self.model,
-            input=text
-        )
-
-        return response["embeddings"][0]
+        return self.client.embed_text(text)

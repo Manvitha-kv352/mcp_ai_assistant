@@ -4,7 +4,7 @@ import { sendMessage, uploadFile } from '../services/api'
 
 function ChatBox() {
   const [messages, setMessages] = useState([
-    { role: 'assistant', text: 'Hello! I can help with documents, API calls, databases, and files.' },
+    { role: 'assistant', text: 'Hello! I can help with API calls, databases, and files.' },
   ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -58,7 +58,8 @@ function ChatBox() {
       setActiveFile(result.filename || file.name)
       setMessages((prev) => [...prev, { role: 'assistant', text: `Uploaded ${result.filename || file.name} and indexed it for this chat session.` }])
     } catch (err) {
-      setMessages((prev) => [...prev, { role: 'assistant', text: 'Upload failed. Please try again.' }])
+      const message = err?.message || 'Upload failed. Please try again.'
+      setMessages((prev) => [...prev, { role: 'assistant', text: `Upload failed: ${message}` }])
     } finally {
       setUploading(false)
       e.target.value = ''
@@ -76,8 +77,6 @@ function ChatBox() {
   return (
     <div className="chat-card">
       <div className="chat-toolbar">
-        <span className="session-pill">Session: {sessionId || 'new'}</span>
-        {activeFile ? <span className="file-pill">Attached: {activeFile}</span> : null}
         <button type="button" className="secondary-btn" onClick={startNewChat}>New chat</button>
       </div>
       <div className="messages" aria-live="polite">

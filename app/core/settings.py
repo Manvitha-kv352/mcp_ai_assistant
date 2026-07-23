@@ -9,11 +9,17 @@ class Settings(BaseSettings):
     # Supabase
     supabase_url: str = ""
     supabase_key: str = ""
-    model_name: str = "llama3"
+
+    # LLM / API providers
+    model_name: str = "llama-3.3-70b-versatile"
+    groq_api_key: str = ""
+    grok_api_key: str = ""
+    groq_model: str = "llama-3.3-70b-versatile"
 
     model_config = SettingsConfigDict(
         env_file=".env",
-        extra="ignore"
+        extra="ignore",
+        env_file_encoding="utf-8"
     )
 
 

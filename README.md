@@ -1,223 +1,183 @@
 # 🤖 MCP Assistant
 
-> **An Agentic AI-powered Model Context Protocol (MCP) Assistant that combines Large Language Models, Retrieval-Augmented Generation (RAG), document understanding, and intelligent tool execution to automate complex user tasks through a modular AI workflow.**
+> An AI assistant that combines FastAPI, React, RAG, document understanding, and tool execution to build a practical conversational agent.
 
 ---
 
-##  Overview
+## Overview
 
-MCP Assistant is an AI-powered assistant designed to extend the capabilities of Large Language Models by integrating document retrieval, external tools, and autonomous task planning into a single intelligent workflow.
+MCP Assistant is a modular AI application that combines a React frontend with a FastAPI backend, document retrieval, and intelligent task planning.
 
-Instead of relying solely on an LLM, the assistant retrieves relevant context from uploaded documents, orchestrates reasoning through modular AI components, and executes external tools when required. This architecture enables more accurate, context-aware, and actionable responses.
-
----
-
-##  Key Features
-
--  AI-powered conversational assistant
--  Upload and analyze PDF documents
--  Retrieval-Augmented Generation (RAG)
--  Context-aware document question answering
--  Model Context Protocol (MCP) tool integration
--  Local document indexing using ChromaDB
--  Session-based conversation history
--  Start new conversations anytime
--  FastAPI REST API
--  React + Vite frontend
--  Docker support
--  Modular architecture for future AI agent expansion
+It uses uploaded files and semantic search to provide context-aware responses, while an agent planner decides whether to answer directly, use retrieval, or execute a tool.
 
 ---
 
-##  System Architecture
+## Key Features
+
+- Conversational AI with file upload support
+- PDF document parsing and semantic search
+- Retrieval-Augmented Generation (RAG)
+- Session-based conversation memory
+- FastAPI backend API
+- React + Vite frontend
+- ChromaDB local vector store
+- Groq / Ollama LLM integration
+- Docker-ready deployment
+- Render deployment support
+
+---
+
+## Architecture
 
 ```text
-                     User
-                       │
-                       ▼
-                 React Frontend
-                       │
-                       ▼
-                 FastAPI Backend
-                       │
-        ┌──────────────┼──────────────┐
-        ▼              ▼              ▼
-  Session Manager   RAG Pipeline   Planner Agent
-        │              │              │
-        │              ▼              ▼
-        │        ChromaDB        MCP Tools
-        │              │              │
-        └──────────────┼──────────────┘
-                       ▼
-                  Ollama LLM
-              (Llama 3 / Mistral)
-                       │
-                       ▼
-                 Final Response
+User
+ ├─ React frontend
+ │    ├─ /chat
+ │    └─ /upload
+ └─ FastAPI backend
+      ├─ session manager
+      ├─ planner agent
+      ├─ RAG agent
+      ├─ MCP tools
+      ├─ ChromaDB
+      └─ LLM client (Groq / Ollama)
 ```
 
 ---
 
-#  Workflow
-
-## Step 1 — User Interaction
-
-The user uploads a PDF document or submits a natural language query through the React interface.
-
----
-
-## Step 2 — Document Processing
-
-Uploaded documents are parsed, chunked, embedded, and indexed into ChromaDB for semantic retrieval.
-
----
-
-## Step 3 — Context Retrieval
-
-Relevant document chunks are retrieved using similarity search to provide context for the user's query.
-
----
-
-## Step 4 — AI Reasoning
-
-The Planner Agent determines whether the request requires:
-
-- Retrieval-Augmented Generation
-- Direct LLM reasoning
-- External MCP tool execution
-
----
-
-## Step 5 — Response Generation
-
-The retrieved context is combined with the user's prompt and passed to Ollama (Llama 3 or Mistral) to generate an accurate, context-aware response.
-
----
-
-## Step 6 — Tool Execution
-
-When necessary, MCP tools perform external operations such as file handling, API interactions, or database access before returning the final response.
-
----
-
-#  Tech Stack
-
-| Category | Technologies |
-|-----------|-------------|
-| **Backend** | Python, FastAPI, Uvicorn |
-| **Frontend** | React, Vite, JavaScript |
-| **AI Framework** | LangChain |
-| **LLM** | Ollama, Llama 3, Mistral |
-| **Vector Database** | ChromaDB |
-| **Document Retrieval** | Retrieval-Augmented Generation (RAG) |
-| **Protocol** | Model Context Protocol (MCP) |
-| **Deployment** | Docker, Docker Compose |
-| **Version Control** | Git, GitHub |
-
----
-
-#  Project Structure
+## Project Structure
 
 ```text
 mcp_ai_assistant/
-
 ├── app/
 │   ├── agents/
-│   ├── planner/
+│   ├── api/
+│   ├── llm/
 │   ├── rag/
-│   ├── sessions/
-│   ├── tools/
-│   ├── models/
+│   ├── session/
+│   ├── services/
 │   └── main.py
-│
 ├── frontend/
-├── uploads/
-├── outputs/
 ├── chroma_db/
-│
+├── uploads/
 ├── Dockerfile
-├── docker-compose.yml
 ├── requirements.txt
+├── render.yaml
 └── README.md
 ```
 
 ---
 
-#  Why This Architecture?
+## Quick Start
 
-Traditional chatbots rely entirely on an LLM, which limits their ability to access external knowledge and perform actions.
-
-MCP Assistant extends the capabilities of LLMs through a modular architecture that combines:
-
-- Retrieval-Augmented Generation for document understanding
-- ChromaDB for semantic search
-- Planner-based task routing
-- External tool execution via Model Context Protocol
-- Session management for conversational memory
-
-This design makes the assistant scalable, maintainable, and capable of solving real-world tasks beyond simple text generation.
-
----
-
-#  Installation
-
-## Clone Repository
-
-```bash
-git clone https://github.com/Manvitha-kv352/mcp_ai_assistant.git
-cd mcp_ai_assistant
-```
-
-## Create Virtual Environment
-
-### Windows
+### 1. Create environment
 
 ```bash
 python -m venv .venv
-.venv\Scripts\activate
+.venv\Scripts\activate    # Windows
+# source .venv/bin/activate # Linux / macOS
 ```
 
-### Linux/macOS
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-```
-
-## Install Backend Dependencies
+### 2. Install backend dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## Install Ollama
-
-Download:
-
-https://ollama.com
-
-Pull a model:
+### 3. Install frontend dependencies
 
 ```bash
-ollama pull llama3
+cd frontend
+npm install
+cd ..
 ```
 
-or
+### 4. Configure environment
 
-```bash
-ollama pull mistral
+Create a `.env` file in the repo root with:
+
+```dotenv
+supabase_url=https://your-supabase-url
+supabase_key=your-supabase-key
+groq_api_key=your-groq-api-key
+# or use GROK_API_KEY in environment variables
 ```
 
-Start Ollama:
+### 5. Run backend
 
 ```bash
-ollama serve
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8013
 ```
 
-## Run Backend
+### 6. Run frontend
 
 ```bash
-uvicorn app.main:app --reload
+cd frontend
+npm run dev
+```
+
+Open the app at `http://127.0.0.1:5174`.
+
+---
+
+## API Endpoints
+
+- `GET /` — root welcome message
+- `GET /health` — health check
+- `POST /chat` — send a chat message
+- `POST /upload` — upload a PDF file
+
+---
+
+## Deployment
+
+### Render
+
+This repository includes `render.yaml` for Render deployment.
+
+- Backend: Docker web service using `Dockerfile`
+- Frontend: Static site built from `frontend`
+
+### Required Render environment variables
+
+- `GROQ_API_KEY` or `GROK_API_KEY`
+- `SUPABASE_URL`
+- `SUPABASE_KEY`
+
+### Docker
+
+The backend Docker image is built from `Dockerfile`.
+
+If you prefer to deploy on Render with Docker, use the `render.yaml` manifest.
+
+---
+
+## Notes
+
+- The frontend expects `VITE_API_BASE_URL` only if you want to override the default API host.
+- The backend defaults to `groq_api_key` and `grok_api_key`.
+- Uploaded PDFs are indexed into ChromaDB for semantic retrieval.
+
+---
+
+## Troubleshooting
+
+- If the backend cannot bind to `8013`, stop any existing Python/Uvicorn process using that port.
+- If CORS fails in the browser, confirm the frontend and backend are running on the expected hosts and the backend is restarted.
+- If the LLM returns fallback embeddings, ensure your Groq API key is configured and valid.
+
+---
+
+## Good to Know
+
+This app is designed to let you:
+
+- chat naturally
+- upload documents for context
+- build on top of a modular AI workflow
+
+For best results, deploy the backend and frontend separately in Render, and use the `.env` / Render environment variables for keys.
+
 ```
 
 Backend:

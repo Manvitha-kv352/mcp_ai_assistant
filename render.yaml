@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: mcp-assistant-backend
+    env: docker
+    plan: free
+    branch: main
+    dockerfilePath: ./Dockerfile
+
+  - type: static-site
+    name: mcp-assistant-frontend
+    env: static
+    plan: free
+    branch: main
+    root: frontend
+    buildCommand: npm install && npm run build
+    publishPath: dist

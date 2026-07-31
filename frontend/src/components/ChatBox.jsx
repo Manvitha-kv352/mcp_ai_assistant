@@ -26,8 +26,9 @@ const buildSessionTitle = (sessionMessages) => {
 }
 
 const buildSessionPreview = (sessionMessages) => {
-  const lastAssistantMessage = [...(sessionMessages || [])].reverse().find((message) => message.role === 'assistant')
-  const lastUserMessage = [...(sessionMessages || [])].reverse().find((message) => message.role === 'user')
+  const messages = [...(sessionMessages || [])]
+  const lastAssistantMessage = messages.reverse().find((message) => message.role === 'assistant' && !message.text.startsWith('Upload failed:'))
+  const lastUserMessage = messages.reverse().find((message) => message.role === 'user')
   const text = lastAssistantMessage?.text?.trim() || lastUserMessage?.text?.trim()
 
   if (!text) return 'Start a new conversation.'
@@ -123,8 +124,11 @@ function ChatBox() {
       setActiveFile(result.filename || file.name)
       setMessages((prev) => [...prev, { role: 'assistant', text: `Uploaded ${result.filename || file.name} and indexed it for this chat session.` }])
     } catch (err) {
-      const message = err?.message || 'Upload failed. Please try again.'
-      setMessages((prev) => [...prev, { role: 'assistant', text: `Upload failed: ${message}` }])
+      const rawMessage = err?.message || ''
+      const userMessage = rawMessage.includes('fetch')
+        ? 'The upload service is temporarily unavailable. Please refresh the page and try again.'
+        : rawMessage || 'Upload failed. Please try again.'
+      setMessages((prev) => [...prev, { role: 'assistant', text: `Upload failed: ${userMessage}` }])
     } finally {
       setUploading(false)
       e.target.value = ''

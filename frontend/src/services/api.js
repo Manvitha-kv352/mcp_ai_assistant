@@ -1,4 +1,9 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.trim() || 'https://mcp-ai-assistant-3.onrender.com'
+const DEFAULT_API_BASE_URL = 'https://mcp-ai-assistant-3.onrender.com'
+const configuredApiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim() || ''
+const isLocalBackendUrl = /localhost|127\.0\.0\.1/.test(configuredApiBaseUrl)
+const API_BASE_URL = import.meta.env.PROD && isLocalBackendUrl
+  ? DEFAULT_API_BASE_URL
+  : configuredApiBaseUrl || DEFAULT_API_BASE_URL
 const buildUrl = (path) => `${API_BASE_URL.replace(/\/$/, '')}${path}`
 
 export async function sendMessage(message, sessionId) {

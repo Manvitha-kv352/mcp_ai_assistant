@@ -4,7 +4,7 @@ import { sendMessage, uploadFile } from '../services/api'
 
 function ChatBox() {
   const [messages, setMessages] = useState([
-    { role: 'assistant', text: 'Hello! I can help with API calls, databases, and files.' },
+    { role: 'assistant', text: 'Hi! How can I help you today?' },
   ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)

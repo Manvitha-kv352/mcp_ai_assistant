@@ -2,15 +2,61 @@ import { useState, useEffect, useRef } from 'react'
 import Message from './Message'
 import { sendMessage, uploadFile } from '../services/api'
 
+const DEFAULT_GREETING = 'Hi! How can I help you today?'
+const HISTORY_KEY = 'mcp-chat-history'
+const SESSION_PREFIX = 'mcp-session-messages-'
+
+const loadStoredMessages = (sessionId) => {
+  if (!sessionId) return null
+
+  try {
+    const saved = localStorage.getItem(`${SESSION_PREFIX}${sessionId}`)
+    return saved ? JSON.parse(saved) : null
+  } catch {
+    return null
+  }
+}
+
+const buildSessionTitle = (sessionMessages) => {
+  const firstUserMessage = sessionMessages?.find((message) => message.role === 'user')
+  const text = firstUserMessage?.text?.trim()
+
+  if (!text) return 'New conversation'
+  return text.length > 42 ? `${text.slice(0, 39)}...` : text
+}
+
+const buildSessionPreview = (sessionMessages) => {
+  const lastAssistantMessage = [...(sessionMessages || [])].reverse().find((message) => message.role === 'assistant')
+  const lastUserMessage = [...(sessionMessages || [])].reverse().find((message) => message.role === 'user')
+  const text = lastAssistantMessage?.text?.trim() || lastUserMessage?.text?.trim()
+
+  if (!text) return 'Start a new conversation.'
+  return text.length > 90 ? `${text.slice(0, 87)}...` : text
+}
+
+const loadHistory = () => {
+  if (typeof window === 'undefined') return []
+
+  try {
+    const history = localStorage.getItem(HISTORY_KEY)
+    return history ? JSON.parse(history) : []
+  } catch {
+    return []
+  }
+}
+
 function ChatBox() {
-  const [messages, setMessages] = useState([
-    { role: 'assistant', text: 'Hi! How can I help you today?' },
-  ])
+  const [messages, setMessages] = useState(() => {
+    const savedSessionId = localStorage.getItem('mcp-session-id') || ''
+    const storedMessages = loadStoredMessages(savedSessionId)
+    return storedMessages?.length ? storedMessages : [{ role: 'assistant', text: DEFAULT_GREETING }]
+  })
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [sessionId, setSessionId] = useState(() => localStorage.getItem('mcp-session-id') || '')
   const [uploading, setUploading] = useState(false)
   const [activeFile, setActiveFile] = useState('')
+  const [history, setHistory] = useState(() => loadHistory())
   const bottomRef = useRef(null)
 
   useEffect(() => {
@@ -24,6 +70,34 @@ function ChatBox() {
       setSessionId(freshSession)
     }
   }, [sessionId])
+
+  useEffect(() => {
+    if (!sessionId) return
+
+    localStorage.setItem(`${SESSION_PREFIX}${sessionId}`, JSON.stringify(messages))
+
+    const sessionSummary = {
+      id: sessionId,
+      title: buildSessionTitle(messages),
+      preview: buildSessionPreview(messages),
+      updatedAt: Date.now(),
+    }
+
+    const nextHistory = [sessionSummary, ...loadHistory().filter((entry) => entry.id !== sessionId)]
+      .slice(0, 8)
+
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(nextHistory))
+    setHistory(nextHistory)
+  }, [messages, sessionId])
+
+  const switchSession = (nextSessionId) => {
+    const storedMessages = loadStoredMessages(nextSessionId)
+    localStorage.setItem('mcp-session-id', nextSessionId)
+    setSessionId(nextSessionId)
+    setMessages(storedMessages?.length ? storedMessages : [{ role: 'assistant', text: DEFAULT_GREETING }])
+    setInput('')
+    setActiveFile('')
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -41,7 +115,7 @@ function ChatBox() {
         ? response
         : response?.response || response?.message || 'No response received.'
       setMessages((prev) => [...prev, { role: 'assistant', text: reply }])
-    } catch (err) {
+    } catch {
       setMessages((prev) => [...prev, { role: 'assistant', text: 'The backend is unavailable right now. Please make sure the FastAPI server is running.' }])
     } finally {
       setLoading(false)
@@ -71,37 +145,67 @@ function ChatBox() {
     localStorage.setItem('mcp-session-id', freshSession)
     setSessionId(freshSession)
     setActiveFile('')
-    setMessages([{ role: 'assistant', text: 'New chat started. You can upload a file or ask a question.' }])
+    setMessages([{ role: 'assistant', text: DEFAULT_GREETING }])
+    setInput('')
   }
 
   return (
-    <div className="chat-card">
-      <div className="chat-toolbar">
-        <button type="button" className="secondary-btn" onClick={startNewChat}>New chat</button>
-      </div>
-      <div className="messages" aria-live="polite">
-        {messages.map((msg, idx) => (
-          <Message key={`${msg.role}-${idx}`} role={msg.role} text={msg.text} />
-        ))}
-        {loading && <Message role="assistant" text="Typing..." />}
-        <div ref={bottomRef} />
-      </div>
+    <div className="chat-layout">
+      <aside className="history-sidebar">
+        <div className="history-sidebar-header">
+          <span>Recent chats</span>
+          <button type="button" className="secondary-btn" onClick={startNewChat}>New chat</button>
+        </div>
 
-      <div className="composer-row">
-        <label className="upload-btn">
-          <input type="file" onChange={handleFileUpload} hidden />
-          {uploading ? 'Uploading...' : 'Upload file'}
-        </label>
-        <form className="composer" onSubmit={handleSubmit}>
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask something like: get online data, summarize my files, or save chat history..."
-          />
-          <button type="submit" disabled={loading}>
-            {loading ? 'Sending...' : 'Send'}
-          </button>
-        </form>
+        <div className="history-list">
+          {history.length === 0 ? (
+            <p className="history-empty">Your recent chats will appear here.</p>
+          ) : (
+            history.map((entry) => (
+              <button
+                key={entry.id}
+                type="button"
+                className={`history-item ${entry.id === sessionId ? 'active' : ''}`}
+                onClick={() => switchSession(entry.id)}
+              >
+                <span className="history-title">{entry.title}</span>
+                <span className="history-preview">{entry.preview}</span>
+                <span className="history-time">{new Date(entry.updatedAt).toLocaleString()}</span>
+              </button>
+            ))
+          )}
+        </div>
+      </aside>
+
+      <div className="chat-card">
+        <div className="chat-toolbar">
+          <span className="session-pill">{sessionId || 'Demo session'}</span>
+          {activeFile && <span className="file-pill">{activeFile}</span>}
+        </div>
+        <div className="messages" aria-live="polite">
+          {messages.map((msg, idx) => (
+            <Message key={`${msg.role}-${idx}`} role={msg.role} text={msg.text} />
+          ))}
+          {loading && <Message role="assistant" text="Typing..." />}
+          <div ref={bottomRef} />
+        </div>
+
+        <div className="composer-row">
+          <label className="upload-btn">
+            <input type="file" onChange={handleFileUpload} hidden />
+            {uploading ? 'Uploading...' : 'Upload file'}
+          </label>
+          <form className="composer" onSubmit={handleSubmit}>
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Ask something like: get online data, summarize my files, or save chat history..."
+            />
+            <button type="submit" disabled={loading}>
+              {loading ? 'Sending...' : 'Send'}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   )

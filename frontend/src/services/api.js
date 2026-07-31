@@ -1,5 +1,5 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
-const buildUrl = (path) => API_BASE_URL ? `${API_BASE_URL.replace(/\/$/, '')}${path}` : path
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.trim() || 'https://mcp-ai-assistant-3.onrender.com'
+const buildUrl = (path) => `${API_BASE_URL.replace(/\/$/, '')}${path}`
 
 export async function sendMessage(message, sessionId) {
   const response = await fetch(buildUrl('/chat'), {

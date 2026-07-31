@@ -90,15 +90,6 @@ function ChatBox() {
     setHistory(nextHistory)
   }, [messages, sessionId])
 
-  const switchSession = (nextSessionId) => {
-    const storedMessages = loadStoredMessages(nextSessionId)
-    localStorage.setItem('mcp-session-id', nextSessionId)
-    setSessionId(nextSessionId)
-    setMessages(storedMessages?.length ? storedMessages : [{ role: 'assistant', text: DEFAULT_GREETING }])
-    setInput('')
-    setActiveFile('')
-  }
-
   const handleSubmit = async (e) => {
     e.preventDefault()
     const trimmed = input.trim()
@@ -162,16 +153,11 @@ function ChatBox() {
             <p className="history-empty">Your recent chats will appear here.</p>
           ) : (
             history.map((entry) => (
-              <button
-                key={entry.id}
-                type="button"
-                className={`history-item ${entry.id === sessionId ? 'active' : ''}`}
-                onClick={() => switchSession(entry.id)}
-              >
+              <div key={entry.id} className="history-item">
                 <span className="history-title">{entry.title}</span>
                 <span className="history-preview">{entry.preview}</span>
                 <span className="history-time">{new Date(entry.updatedAt).toLocaleString()}</span>
-              </button>
+              </div>
             ))
           )}
         </div>
@@ -179,7 +165,6 @@ function ChatBox() {
 
       <div className="chat-card">
         <div className="chat-toolbar">
-          <span className="session-pill">{sessionId || 'Demo session'}</span>
           {activeFile && <span className="file-pill">{activeFile}</span>}
         </div>
         <div className="messages" aria-live="polite">

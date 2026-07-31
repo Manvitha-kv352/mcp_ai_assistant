@@ -12,9 +12,9 @@ class IndexingService:
 
     def index_pdf(self, file_path: str):
         try:
-            text = self.loader.load_pdf(file_path)
+            text = self.loader.load_document(file_path)
         except Exception as exc:
-            raise ValueError(f"Failed to load PDF file: {exc}") from exc
+            raise ValueError(f"Failed to load document file: {exc}") from exc
 
         if not text or not text.strip():
             return 0
